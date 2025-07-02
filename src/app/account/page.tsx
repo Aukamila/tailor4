@@ -80,8 +80,9 @@ export default function AccountPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Job #</TableHead>
                   <TableHead>Item</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Request Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Payment</TableHead>
                 </TableRow>
@@ -89,13 +90,14 @@ export default function AccountPage() {
               <TableBody>
                 {customerOrders.map((order) => (
                   <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.jobNumber}</TableCell>
                     <TableCell className="font-medium">{order.item}</TableCell>
-                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(order.requestDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusVariant(order.status) as any}>{order.status}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getPaymentStatusVariant((order as any).paymentStatus) as any}>{(order as any).paymentStatus}</Badge>
+                      <Badge variant={getPaymentStatusVariant(order.paymentStatus) as any}>{order.paymentStatus}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}

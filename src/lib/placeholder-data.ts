@@ -20,6 +20,13 @@ export const customers = [
     phone: "555-123-4567",
     avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
   },
+  {
+    id: "cus_4",
+    name: "Anna Kendrick",
+    email: "anna.k@example.com",
+    phone: "555-867-5309",
+    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706d",
+  }
 ];
 
 export const measurements = [
@@ -61,7 +68,8 @@ export const orders = [
   {
     id: "ord_1",
     customerId: "cus_1",
-    date: "2024-01-15",
+    jobNumber: "J001",
+    requestDate: "2024-01-15",
     item: "Custom Suit",
     status: "Stitching",
     paymentStatus: "Partial",
@@ -69,7 +77,8 @@ export const orders = [
   {
     id: "ord_2",
     customerId: "cus_1",
-    date: "2023-10-26",
+    jobNumber: "J002",
+    requestDate: "2023-10-26",
     item: "Linen Shirt",
     status: "Completed",
     paymentStatus: "Paid",
@@ -77,7 +86,8 @@ export const orders = [
   {
     id: "ord_3",
     customerId: "cus_2",
-    date: "2023-11-01",
+    jobNumber: "J003",
+    requestDate: "2023-11-01",
     item: "Evening Gown",
     status: "Ready for Pickup",
     paymentStatus: "Paid",
@@ -85,7 +95,8 @@ export const orders = [
   {
     id: "ord_4",
     customerId: "cus_3",
-    date: "2024-02-20",
+    jobNumber: "J004",
+    requestDate: "2024-02-20",
     item: "Tweed Jacket",
     status: "Pending",
     paymentStatus: "Pending",
@@ -93,7 +104,8 @@ export const orders = [
   {
     id: "ord_5",
     customerId: "cus_2",
-    date: "2024-03-01",
+    jobNumber: "J005",
+    requestDate: "2024-03-01",
     item: "Blouse",
     status: "Cutting",
     paymentStatus: "Paid",
@@ -101,9 +113,19 @@ export const orders = [
   {
     id: "ord_6",
     customerId: "cus_1",
-    date: "2024-03-05",
+    jobNumber: "J006",
+    requestDate: "2024-03-05",
     item: "Trousers",
     status: "Finishing",
     paymentStatus: "Paid",
+  },
+  {
+    id: "ord_7",
+    customerId: "cus_4",
+    jobNumber: "J007",
+    requestDate: "2024-03-10",
+    item: "Summer Dress",
+    status: "Pending",
+    paymentStatus: "Pending",
   },
 ];
