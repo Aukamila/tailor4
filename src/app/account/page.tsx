@@ -30,10 +30,25 @@ export default function AccountPage() {
     switch (status) {
       case 'Completed':
         return 'default';
-      case 'In Progress':
+      case 'Cutting':
+      case 'Stitching':
+      case 'Finishing':
         return 'secondary';
       case 'Ready for Pickup':
           return 'default';
+      case 'Pending':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
+  
+  const getPaymentStatusVariant = (status: string) => {
+    switch (status) {
+      case 'Paid':
+        return 'default';
+      case 'Partial':
+        return 'secondary';
       case 'Pending':
         return 'destructive';
       default:
@@ -68,6 +83,7 @@ export default function AccountPage() {
                   <TableHead>Item</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Payment</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,6 +93,9 @@ export default function AccountPage() {
                     <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusVariant(order.status) as any}>{order.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getPaymentStatusVariant((order as any).paymentStatus) as any}>{(order as any).paymentStatus}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -104,12 +123,14 @@ export default function AccountPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
                       {Object.entries(m.details).map(([key, value]) => (
-                        <div key={key}>
-                          <span className="font-medium capitalize">{key}: </span>
-                          <span className="text-muted-foreground">{value}"</span>
-                        </div>
+                        value ? (
+                          <div key={key} className="flex justify-between border-b">
+                            <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}: </span>
+                            <span className="text-muted-foreground">{value}"</span>
+                          </div>
+                        ) : null
                       ))}
                     </div>
                   </CardContent>

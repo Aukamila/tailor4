@@ -5,7 +5,7 @@ import { Header } from "@/components/header";
 
 export default function DashboardPage() {
   const activeOrders = orders.filter(
-    (order) => order.status === "In Progress" || order.status === "Pending"
+    (order) => ["Cutting", "Stitching", "Finishing", "Pending"].includes(order.status)
   ).length;
   const totalCustomers = customers.length;
   const pendingTasks = orders.filter(
