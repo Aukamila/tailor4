@@ -17,6 +17,7 @@ import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Form } from "@/components/ui/form";
 import { MeasurementFields } from "./measurement-fields";
+import { measurements } from "@/lib/placeholder-data";
 
 const measurementFieldsList = [
   "height", "neckWidth", "shoulder", "armholeCurve", "upperarmWidth", "chest", "underbust", "nippleToNipple", "waist", "hips", "waistToKneeLength", "waistToAnkle", "thighCirc", "ankleCirc", "shoulderToWaist", "shoulderToAnkle", "shoulderToWrist", "shoulderToElbow", "innerArmLength", "outseamLength", "inseamLength", "backRise", "frontRise", "singleShoulder", "frontDrop", "backDrop", "armholeCurveStraight", "neckBandWidth", "collarWidth", "collarPoint", "sleeveLength", "sleeveOpen", "cuffHeight", "waistBand", "legOpen", "seatLength", "dressLength"
@@ -34,18 +35,27 @@ const newMeasurementSchema = z.object({
 interface AddMeasurementFormProps {
   customerId: string;
   children: React.ReactNode;
+  measurementToEdit?: (typeof measurements)[0];
 }
 
-export function AddMeasurementForm({ customerId, children }: AddMeasurementFormProps) {
+export function AddMeasurementForm({ customerId, children, measurementToEdit }: AddMeasurementFormProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
+  const isEditMode = !!measurementToEdit;
 
   const form = useForm<z.infer<typeof newMeasurementSchema>>({
     resolver: zodResolver(newMeasurementSchema),
     defaultValues: {
-      details: {},
+      details: isEditMode ? measurementToEdit.details : {},
     },
   });
+  
+  React.useEffect(() => {
+    if (open) {
+      form.reset(isEditMode ? { details: measurementToEdit.details } : { details: {} });
+    }
+  }, [open, form, isEditMode, measurementToEdit]);
+
 
   const onSubmit = (values: z.infer<typeof newMeasurementSchema>) => {
     const filledMeasurements = Object.fromEntries(Object.entries(values.details).filter(([_, v]) => v != null && v !== ''));
@@ -59,12 +69,20 @@ export function AddMeasurementForm({ customerId, children }: AddMeasurementFormP
       return;
     }
 
-    console.log("New Measurement for", customerId, ":", filledMeasurements);
-    toast({
-      title: "Measurement Added",
-      description: `New measurements have been saved for the customer.`,
-    });
-    form.reset();
+    if (isEditMode) {
+      console.log("Updated Measurement for", customerId, ":", filledMeasurements);
+      toast({
+        title: "Measurement Updated",
+        description: `Measurements have been successfully updated.`,
+      });
+    } else {
+      console.log("New Measurement for", customerId, ":", filledMeasurements);
+      toast({
+        title: "Measurement Added",
+        description: `New measurements have been saved for the customer.`,
+      });
+    }
+    
     setOpen(false);
   };
 
@@ -75,9 +93,9 @@ export function AddMeasurementForm({ customerId, children }: AddMeasurementFormP
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
-              <DialogTitle>Add New Measurement</DialogTitle>
+              <DialogTitle>{isEditMode ? "Edit Measurement" : "Add New Measurement"}</DialogTitle>
               <DialogDescription>
-                Enter the new measurement details for the customer. All values are in inches.
+                {isEditMode ? "Update the measurement details for the customer." : "Enter the new measurement details for the customer."} All values are in inches.
               </DialogDescription>
             </DialogHeader>
             <div className="max-h-[60vh] overflow-y-auto pr-6">
@@ -87,7 +105,7 @@ export function AddMeasurementForm({ customerId, children }: AddMeasurementFormP
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Save Measurement</Button>
+              <Button type="submit">{isEditMode ? "Update Measurement" : "Save Measurement"}</Button>
             </DialogFooter>
           </form>
         </Form>

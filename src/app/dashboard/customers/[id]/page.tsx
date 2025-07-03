@@ -21,7 +21,7 @@ import { Header } from "@/components/header";
 import { AddMeasurementForm } from "@/components/add-measurement-form";
 import { customers, measurements, orders } from "@/lib/placeholder-data";
 import { notFound } from "next/navigation";
-import { Ruler, ShoppingBag, Mail, Phone, Calendar as CalendarIcon, PlusCircle } from "lucide-react";
+import { Ruler, ShoppingBag, Mail, Phone, Calendar as CalendarIcon, PlusCircle, Pencil } from "lucide-react";
 
 export default function CustomerDetailPage({ params }: { params: { id: string } }) {
   const customer = customers.find((c) => c.id === params.id);
@@ -29,7 +29,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
     notFound();
   }
 
-  const customerMeasurements = measurements.filter((m) => m.customerId === customer.id);
+  const customerMeasurements = measurements.filter((m) => m.customerId === customer.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const customerOrders = orders.filter((o) => o.customerId === customer.id);
   
   const owner = { name: "Shop Owner", email: "owner@stitchperfect.com", avatar: "https://i.pravatar.cc/150?u=owner" };
@@ -63,6 +63,12 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
         return 'outline';
     }
   };
+
+  const getOrderInfo = (orderId?: string) => {
+    if (!orderId) return null;
+    const order = orders.find(o => o.id === orderId);
+    return order ? { item: order.item, jobNumber: order.jobNumber } : null;
+  }
 
   return (
     <div className="flex h-screen flex-col">
@@ -130,13 +136,29 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {customerMeasurements.map((m) => (
+                    {customerMeasurements.map((m) => {
+                      const orderInfo = getOrderInfo(m.orderId);
+                      return (
                       <Card key={m.id}>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base flex items-center gap-2">
-                            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                             Measurement from {new Date(m.date).toLocaleDateString()}
-                          </CardTitle>
+                        <CardHeader className="flex flex-row items-start justify-between pb-2">
+                          <div>
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                              Measurement from {new Date(m.date).toLocaleDateString()}
+                            </CardTitle>
+                             {orderInfo && (
+                              <CardDescription className="text-xs flex items-center gap-1.5 mt-1 pl-1">
+                                <ShoppingBag className="h-3 w-3 text-muted-foreground" />
+                                For: {orderInfo.item} ({orderInfo.jobNumber})
+                              </CardDescription>
+                            )}
+                          </div>
+                          <AddMeasurementForm customerId={customer.id} measurementToEdit={m}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit Measurement</span>
+                            </Button>
+                          </AddMeasurementForm>
                         </CardHeader>
                         <CardContent>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
@@ -151,7 +173,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
+                    )})}
                   </div>
                 </CardContent>
               </Card>
