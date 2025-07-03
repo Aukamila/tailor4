@@ -1,4 +1,6 @@
+"use client";
 
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -26,11 +28,22 @@ import {
   Eye,
   UserPlus,
 } from "lucide-react";
-import { orders, customers } from "@/lib/placeholder-data";
+import { orders as allOrders, customers as allCustomers } from "@/lib/placeholder-data";
 import { Header } from "@/components/header";
 import Link from "next/link";
 
 export default function DashboardPage() {
+  const [orders, setOrders] = useState(allOrders);
+  const [customers, setCustomers] = useState(allCustomers);
+
+  useEffect(() => {
+    const storedOrders = localStorage.getItem("orders");
+    setOrders(storedOrders ? JSON.parse(storedOrders) : allOrders);
+
+    const storedCustomers = localStorage.getItem("customers");
+    setCustomers(storedCustomers ? JSON.parse(storedCustomers) : allCustomers);
+  }, []);
+
   const activeOrders = orders.filter((order) =>
     ["Cutting", "Stitching", "Finishing", "Pending"].includes(order.status)
   ).length;
@@ -52,7 +65,10 @@ export default function DashboardPage() {
     .sort((a, b) => new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime())
     .slice(0, 5);
     
-  const recentCustomers = customers.slice(0, 5);
+  const recentCustomers = [...customers]
+    .sort((a, b) => (b.id > a.id ? 1 : -1)) // A simple sort for new customers
+    .slice(0, 5);
+
 
   const getCustomerName = (customerId: string) => {
     return customers.find((c) => c.id === customerId)?.name || "Unknown";

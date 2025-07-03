@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Table,
@@ -15,18 +15,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, PlusCircle } from "lucide-react";
-import { customers, orders as allOrders } from "@/lib/placeholder-data";
+import { customers, orders as allOrders, measurements } from "@/lib/placeholder-data";
 import { Header } from "@/components/header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState(allOrders);
+  const [orders, setOrders] = useState<typeof allOrders>([]);
+  const [currentCustomers, setCurrentCustomers] = useState(customers);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Initialize local storage if it's empty
+    if (!localStorage.getItem("orders")) {
+      localStorage.setItem("orders", JSON.stringify(allOrders));
+    }
+    if (!localStorage.getItem("customers")) {
+      localStorage.setItem("customers", JSON.stringify(customers));
+    }
+     if (!localStorage.getItem("measurements")) {
+      localStorage.setItem("measurements", JSON.stringify(measurements));
+    }
+
+    const storedOrders = localStorage.getItem("orders");
+    setOrders(storedOrders ? JSON.parse(storedOrders) : []);
+
+    const storedCustomers = localStorage.getItem("customers");
+    setCurrentCustomers(storedCustomers ? JSON.parse(storedCustomers) : []);
+  }, []);
+
   const getCustomerName = (customerId: string) => {
-    return customers.find((c) => c.id === customerId)?.name || "Unknown";
+    return currentCustomers.find((c) => c.id === customerId)?.name || "Unknown";
   };
 
   const filteredOrders = orders.filter(
@@ -39,7 +59,9 @@ export default function OrdersPage() {
   const owner = { name: "Shop Owner", email: "owner@stitchperfect.com", avatar: "https://i.pravatar.cc/150?u=owner" };
 
   const handleStatusChange = (orderId: string, field: 'status' | 'paymentStatus', value: string) => {
-    setOrders(currentOrders => currentOrders.map(o => o.id === orderId ? {...o, [field]: value} : o));
+    const updatedOrders = orders.map(o => o.id === orderId ? {...o, [field]: value} : o);
+    setOrders(updatedOrders);
+    localStorage.setItem("orders", JSON.stringify(updatedOrders));
     toast({
       title: "Order Updated",
       description: `Order ${orderId} has been updated.`,

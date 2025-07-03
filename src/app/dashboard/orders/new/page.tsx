@@ -6,6 +6,7 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ChevronDown, PlusCircle } from "lucide-react";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { customers, orders as allOrders } from "@/lib/placeholder-data";
+import { customers, orders as allOrders, measurements as allMeasurements } from "@/lib/placeholder-data";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MeasurementFields } from "@/components/measurement-fields";
@@ -56,9 +57,11 @@ export default function NewOrderPage() {
   const owner = { name: "Shop Owner", email: "owner@stitchperfect.com", avatar: "https://i.pravatar.cc/150?u=owner" };
 
   const getNextJobNumber = () => {
-    if (allOrders.length === 0) return "J001";
+    const storedOrders = localStorage.getItem("orders");
+    const currentOrders = storedOrders ? JSON.parse(storedOrders) : allOrders;
+    if (currentOrders.length === 0) return "J001";
     
-    const latestJobNum = allOrders.reduce((max, order) => {
+    const latestJobNum = currentOrders.reduce((max: number, order: { jobNumber: string }) => {
         const currentNum = parseInt(order.jobNumber.replace(/\D/g, ''), 10) || 0;
         return currentNum > max ? currentNum : max;
     }, 0);
@@ -79,13 +82,42 @@ export default function NewOrderPage() {
   });
 
   function onSubmit(values: z.infer<typeof newOrderSchema>) {
-    // Filter out null/undefined/empty measurements before logging
     const finalValues = {
         ...values,
         details: values.details ? Object.fromEntries(Object.entries(values.details).filter(([_, v]) => v != null && v !== '')) : undefined
     }
 
-    console.log("New Order and Measurements Data:", finalValues);
+    const newOrderId = `ord_${new Date().getTime()}`;
+    
+    const newOrder = {
+        id: newOrderId,
+        customerId: values.customerId,
+        jobNumber: values.jobNumber,
+        requestDate: format(values.requestDate, "yyyy-MM-dd"),
+        item: values.item,
+        status: values.status,
+        paymentStatus: values.paymentStatus,
+    };
+
+    const storedOrders = localStorage.getItem("orders");
+    const currentOrders = storedOrders ? JSON.parse(storedOrders) : allOrders;
+    const updatedOrders = [newOrder, ...currentOrders];
+    localStorage.setItem("orders", JSON.stringify(updatedOrders));
+
+    if (finalValues.details && Object.keys(finalValues.details).length > 0) {
+      const newMeasurement = {
+        id: `mes_${new Date().getTime()}`,
+        customerId: values.customerId,
+        orderId: newOrderId,
+        date: format(values.requestDate, "yyyy-MM-dd"),
+        details: finalValues.details
+      };
+      const storedMeasurements = localStorage.getItem("measurements");
+      const currentMeasurements = storedMeasurements ? JSON.parse(storedMeasurements) : allMeasurements;
+      const updatedMeasurements = [newMeasurement, ...currentMeasurements];
+      localStorage.setItem("measurements", JSON.stringify(updatedMeasurements));
+    }
+
     toast({
       title: "Order Created",
       description: `A new order for ${values.item} has been created.`,

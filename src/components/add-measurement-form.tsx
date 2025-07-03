@@ -17,7 +17,8 @@ import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Form } from "@/components/ui/form";
 import { MeasurementFields } from "./measurement-fields";
-import { measurements } from "@/lib/placeholder-data";
+import { measurements as allMeasurements } from "@/lib/placeholder-data";
+import { format } from "date-fns";
 
 const measurementFieldsList = [
   "height", "neckWidth", "shoulder", "armholeCurve", "upperarmWidth", "chest", "underbust", "nippleToNipple", "waist", "hips", "waistToKneeLength", "waistToAnkle", "thighCirc", "ankleCirc", "shoulderToWaist", "shoulderToAnkle", "shoulderToWrist", "shoulderToElbow", "innerArmLength", "outseamLength", "inseamLength", "backRise", "frontRise", "singleShoulder", "frontDrop", "backDrop", "armholeCurveStraight", "neckBandWidth", "collarWidth", "collarPoint", "sleeveLength", "sleeveOpen", "cuffHeight", "waistBand", "legOpen", "seatLength", "dressLength"
@@ -35,10 +36,11 @@ const newMeasurementSchema = z.object({
 interface AddMeasurementFormProps {
   customerId: string;
   children: React.ReactNode;
-  measurementToEdit?: (typeof measurements)[0];
+  measurementToEdit?: (typeof allMeasurements)[0];
+  onSuccess?: () => void;
 }
 
-export function AddMeasurementForm({ customerId, children, measurementToEdit }: AddMeasurementFormProps) {
+export function AddMeasurementForm({ customerId, children, measurementToEdit, onSuccess }: AddMeasurementFormProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const isEditMode = !!measurementToEdit;
@@ -69,20 +71,34 @@ export function AddMeasurementForm({ customerId, children, measurementToEdit }: 
       return;
     }
 
+    const storedMeasurements = localStorage.getItem("measurements");
+    const currentMeasurements = storedMeasurements ? JSON.parse(storedMeasurements) : allMeasurements;
+
     if (isEditMode) {
-      console.log("Updated Measurement for", customerId, ":", filledMeasurements);
+      const updatedMeasurements = currentMeasurements.map((m: any) => 
+        m.id === measurementToEdit.id ? { ...m, details: filledMeasurements } : m
+      );
+      localStorage.setItem("measurements", JSON.stringify(updatedMeasurements));
       toast({
         title: "Measurement Updated",
         description: `Measurements have been successfully updated.`,
       });
     } else {
-      console.log("New Measurement for", customerId, ":", filledMeasurements);
+      const newMeasurement = {
+        id: `mes_${new Date().getTime()}`,
+        customerId,
+        date: format(new Date(), "yyyy-MM-dd"),
+        details: filledMeasurements,
+      };
+      const updatedMeasurements = [newMeasurement, ...currentMeasurements];
+      localStorage.setItem("measurements", JSON.stringify(updatedMeasurements));
       toast({
         title: "Measurement Added",
         description: `New measurements have been saved for the customer.`,
       });
     }
     
+    onSuccess?.();
     setOpen(false);
   };
 
