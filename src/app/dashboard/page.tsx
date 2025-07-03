@@ -24,6 +24,7 @@ import {
   CheckCircle,
   ArrowRight,
   Eye,
+  UserPlus,
 } from "lucide-react";
 import { orders, customers } from "@/lib/placeholder-data";
 import { Header } from "@/components/header";
@@ -76,7 +77,14 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header title="Dashboard" user={owner} />
+      <Header title="Dashboard" user={owner}>
+        <Button asChild>
+          <Link href="/dashboard/customers/new">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Customer
+          </Link>
+        </Button>
+      </Header>
       <main className="flex-1 space-y-4 overflow-y-auto p-4 pt-6 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
@@ -196,7 +204,7 @@ export default function DashboardPage() {
                             <TableRow>
                                 <TableHead>Customer</TableHead>
                                 <TableHead>Email</TableHead>
-                                <TableHead><span className="sr-only">Actions</span></TableHead>
+                                <TableHead><span className="sr-only">Actions</span></Tabel-huvud></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

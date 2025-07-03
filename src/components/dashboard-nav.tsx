@@ -2,18 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, UserPlus, ShoppingBag } from "lucide-react";
+import { LayoutDashboard, Users, ShoppingBag } from "lucide-react";
 
 import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
-  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { SewingPinIcon } from "./icons";
-import { Button } from "./ui/button";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -50,17 +47,6 @@ export function DashboardNav() {
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
-      
-      <SidebarSeparator />
-
-      <SidebarFooter className="p-4">
-        <Link href="/dashboard/customers/new">
-            <Button className="w-full">
-                <UserPlus className="mr-2"/>
-                Add New Customer
-            </Button>
-        </Link>
-      </SidebarFooter>
     </div>
   );
 }
