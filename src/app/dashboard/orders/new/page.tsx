@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { customers } from "@/lib/placeholder-data";
+import { customers, orders as allOrders } from "@/lib/placeholder-data";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MeasurementFields } from "@/components/measurement-fields";
@@ -55,11 +55,23 @@ export default function NewOrderPage() {
   
   const owner = { name: "Shop Owner", email: "owner@stitchperfect.com", avatar: "https://i.pravatar.cc/150?u=owner" };
 
+  const getNextJobNumber = () => {
+    if (allOrders.length === 0) return "J001";
+    
+    const latestJobNum = allOrders.reduce((max, order) => {
+        const currentNum = parseInt(order.jobNumber.replace(/\D/g, ''), 10) || 0;
+        return currentNum > max ? currentNum : max;
+    }, 0);
+
+    return `J${String(latestJobNum + 1).padStart(3, '0')}`;
+  };
+
+
   const form = useForm<z.infer<typeof newOrderSchema>>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
       item: "",
-      jobNumber: "",
+      jobNumber: getNextJobNumber(),
       status: "Pending",
       paymentStatus: "Pending",
       details: {},
