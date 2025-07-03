@@ -204,7 +204,7 @@ export default function DashboardPage() {
                             <TableRow>
                                 <TableHead>Customer</TableHead>
                                 <TableHead>Email</TableHead>
-                                <TableHead><span className="sr-only">Actions</span></Tabel-huvud></TableHead>
+                                <TableHead><span className="sr-only">Actions</span></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
