@@ -67,9 +67,9 @@ export default function NewOrderPage() {
   const paymentStatusOptions = ["Pending", "Partial", "Paid"];
 
   return (
-    <div className="flex flex-col">
+    <div className="flex h-screen flex-col">
        <Header title="Add New Order" user={owner} />
-      <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <main className="flex-1 space-y-4 overflow-y-auto p-4 pt-6 md:p-8">
         <Card>
           <CardHeader>
             <CardTitle>New Order Details</CardTitle>

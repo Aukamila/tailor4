@@ -18,9 +18,9 @@ export default function DashboardPage() {
   const owner = { name: "Shop Owner", email: "owner@stitchperfect.com", avatar: "https://i.pravatar.cc/150?u=owner" };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex h-screen flex-col">
       <Header title="Dashboard" user={owner} />
-      <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <main className="flex-1 space-y-4 overflow-y-auto p-4 pt-6 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
