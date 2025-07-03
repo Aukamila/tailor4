@@ -68,7 +68,7 @@ export default function NewOrderPage() {
 
   return (
     <div className="flex h-screen flex-col">
-       <Header title="Add New Order" user={owner} />
+       <Header title="Add New Order" user={owner} showBackButton />
       <main className="flex-1 space-y-4 overflow-y-auto p-4 pt-6 md:p-8">
         <Card>
           <CardHeader>
@@ -181,8 +181,7 @@ export default function NewOrderPage() {
                     )}
                     />
                 </div>
-                <div className="flex justify-end gap-2">
-                    <Button variant="outline" type="button" onClick={() => router.back()}>Cancel</Button>
+                <div className="flex justify-end">
                     <Button type="submit">Create Order</Button>
                 </div>
               </form>

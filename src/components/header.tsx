@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,9 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "./ui/button";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { SidebarTrigger } from "./ui/sidebar";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   title: string;
@@ -20,9 +23,11 @@ interface HeaderProps {
     avatar?: string;
   };
   children?: React.ReactNode;
+  showBackButton?: boolean;
 }
 
-export function Header({ title, user, children }: HeaderProps) {
+export function Header({ title, user, children, showBackButton }: HeaderProps) {
+  const router = useRouter();
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -32,6 +37,12 @@ export function Header({ title, user, children }: HeaderProps) {
     <header className="flex h-16 items-center justify-between border-b bg-card px-4 md:px-6">
        <div className="flex items-center gap-2">
          <SidebarTrigger className="md:hidden" />
+         {showBackButton && (
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Back</span>
+            </Button>
+         )}
          <h1 className="text-xl font-semibold font-headline">{title}</h1>
        </div>
       
