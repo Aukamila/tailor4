@@ -1,8 +1,8 @@
-import { LoginForm } from "@/components/login-form";
+import { SignupForm } from "@/components/signup-form";
 import { SewingPinIcon } from "@/components/icons";
 import Link from "next/link";
 
-export default function Home() {
+export default function SignupPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
@@ -10,14 +10,14 @@ export default function Home() {
           <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4">
             <SewingPinIcon className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-bold text-center font-headline">StitchPerfect</h1>
-          <p className="text-muted-foreground text-center">Your Digital Tailoring Assistant</p>
+          <h1 className="text-3xl font-bold text-center font-headline">Create an Account</h1>
+          <p className="text-muted-foreground text-center">Join StitchPerfect today.</p>
         </div>
-        <LoginForm />
+        <SignupForm />
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="underline">
-            Sign Up
+          Already have an account?{" "}
+          <Link href="/" className="underline">
+            Sign In
           </Link>
         </div>
       </div>
