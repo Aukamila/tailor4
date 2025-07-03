@@ -4,14 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { useState } from "react";
+import { ChevronDown, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,10 +22,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { customers } from "@/lib/placeholder-data";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
 import { DatePicker } from "@/components/ui/datepicker";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { MeasurementFields } from "@/components/measurement-fields";
+
+
+const measurementFieldsList = [
+  "height", "neckWidth", "shoulder", "armholeCurve", "upperarmWidth", "chest", "underbust", "nippleToNipple", "waist", "hips", "waistToKneeLength", "waistToAnkle", "thighCirc", "ankleCirc", "shoulderToWaist", "shoulderToAnkle", "shoulderToWrist", "shoulderToElbow", "innerArmLength", "outseamLength", "inseamLength", "backRise", "frontRise", "singleShoulder", "frontDrop", "backDrop", "armholeCurveStraight", "neckBandWidth", "collarWidth", "collarPoint", "sleeveLength", "sleeveOpen", "cuffHeight", "waistBand", "legOpen", "seatLength", "dressLength"
+];
+
+const measurementSchemaObject = measurementFieldsList.reduce((acc, field) => {
+  acc[field] = z.coerce.number({invalid_type_error: 'Must be a number'}).positive().optional().nullable();
+  return acc;
+}, {} as Record<string, z.ZodOptional<z.ZodNullable<z.ZodNumber>>>);
 
 
 const newOrderSchema = z.object({
@@ -36,11 +44,14 @@ const newOrderSchema = z.object({
   requestDate: z.date({ required_error: "A request date is required." }),
   status: z.string({ required_error: "Please select an initial status." }),
   paymentStatus: z.string({ required_error: "Please select an initial payment status." }),
+  details: z.object(measurementSchemaObject).optional(),
 });
+
 
 export default function NewOrderPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [isMeasurementsOpen, setIsMeasurementsOpen] = useState(false);
   
   const owner = { name: "Shop Owner", email: "owner@stitchperfect.com", avatar: "https://i.pravatar.cc/150?u=owner" };
 
@@ -51,11 +62,18 @@ export default function NewOrderPage() {
       jobNumber: "",
       status: "Pending",
       paymentStatus: "Pending",
+      details: {},
     },
   });
 
   function onSubmit(values: z.infer<typeof newOrderSchema>) {
-    console.log("New Order Data:", values);
+    // Filter out null/undefined/empty measurements before logging
+    const finalValues = {
+        ...values,
+        details: values.details ? Object.fromEntries(Object.entries(values.details).filter(([_, v]) => v != null && v !== '')) : undefined
+    }
+
+    console.log("New Order and Measurements Data:", finalValues);
     toast({
       title: "Order Created",
       description: `A new order for ${values.item} has been created.`,
@@ -74,7 +92,7 @@ export default function NewOrderPage() {
           <CardHeader>
             <CardTitle>New Order Details</CardTitle>
             <CardDescription>
-              Fill in the details below to create a new customer order.
+              Fill in the details below to create a new order. You can optionally add measurements.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -181,6 +199,24 @@ export default function NewOrderPage() {
                     )}
                     />
                 </div>
+                
+                <Collapsible open={isMeasurementsOpen} onOpenChange={setIsMeasurementsOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Measurements (Optional)
+                        <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isMeasurementsOpen ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="mt-6 border-t pt-6">
+                        <h3 className="text-lg font-medium mb-2">Measurement Details</h3>
+                        <p className="text-sm text-muted-foreground mb-4">All values should be in inches.</p>
+                        <MeasurementFields control={form.control} />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+
                 <div className="flex justify-end">
                     <Button type="submit">Create Order</Button>
                 </div>
