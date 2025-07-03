@@ -14,17 +14,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, PlusCircle } from "lucide-react";
+import { Search, PlusCircle, Trash2 } from "lucide-react";
 import { customers, orders as allOrders, measurements } from "@/lib/placeholder-data";
 import { Header } from "@/components/header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<typeof allOrders>([]);
   const [currentCustomers, setCurrentCustomers] = useState(customers);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize local storage if it's empty
@@ -67,6 +78,27 @@ export default function OrdersPage() {
       description: `Order ${orderId} has been updated.`,
     });
   }
+  
+  const handleDeleteConfirm = () => {
+    if (!orderToDelete) return;
+
+    const updatedOrders = orders.filter(o => o.id !== orderToDelete);
+    setOrders(updatedOrders);
+    localStorage.setItem("orders", JSON.stringify(updatedOrders));
+
+    const storedMeasurements = localStorage.getItem("measurements");
+    if (storedMeasurements) {
+        const currentMeasurements = JSON.parse(storedMeasurements);
+        const updatedMeasurements = currentMeasurements.filter((m: any) => m.orderId !== orderToDelete);
+        localStorage.setItem("measurements", JSON.stringify(updatedMeasurements));
+    }
+
+    toast({
+      title: "Order Deleted",
+      description: `The order has been successfully deleted.`,
+    });
+    setOrderToDelete(null);
+  };
 
   const orderStatusOptions = ["Pending", "Cutting", "Stitching", "Finishing", "Ready for Pickup", "Completed"];
   const paymentStatusOptions = ["Pending", "Partial", "Paid"];
@@ -110,6 +142,7 @@ export default function OrdersPage() {
                 <TableHead>Request Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Payment</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,6 +172,12 @@ export default function OrdersPage() {
                         </SelectContent>
                     </Select>
                   </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="icon" onClick={() => setOrderToDelete(order.id)}>
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete Order</span>
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -151,6 +190,21 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
       </main>
+      <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
+        <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the order
+            and any associated measurements from local storage.
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+        </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
     </div>
   );
 }
